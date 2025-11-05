@@ -1,0 +1,21 @@
+cat > .gitignore << 'EOF'
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# IntelliJ
+.idea/
+*.iml
+out/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# H2 database files (none for in-memory, but safe)
+*.mv.db
+*.h2.db
+EOF

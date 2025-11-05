@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Library API Tester</title>
+    <style>
+        :root { --w: 820px; }
+        html,body{height:100%}
+        body{
+            font-family: Arial, sans-serif;
+            margin:0; display:flex; align-items:flex-start; justify-content:center;
+            background:#f7f7f9;
+        }
+        .container{
+            width: min(100%, var(--w));
+            margin: 24px auto;
+            background:#fff; padding:24px; border-radius:14px;
+            box-shadow: 0 8px 24px rgba(0,0,0,.08);
+        }
+        h1{margin:0 0 12px; text-align:center}
+        fieldset{margin:16px 0; padding:16px; border-radius:12px}
+        legend{font-weight:700}
+        label{display:block;margin:6px 0 2px}
+        input{padding:8px;width:100%;box-sizing:border-box;border:1px solid #d0d5dd;border-radius:8px}
+        button{margin-top:8px;padding:10px 14px;border-radius:10px;border:1px solid #0b57d0;background:#0b57d0;color:#fff;cursor:pointer}
+        button.secondary{background:#fff;color:#0b57d0}
+        .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+        pre{background:#0f172a;color:#e2e8f0;padding:12px;white-space:pre-wrap;border-radius:10px}
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Library API Tester</h1>
+
+    <fieldset>
+        <legend>Books</legend>
+        <button class="secondary" onclick="req('GET','/api/books')">GET /api/books</button>
+        <div class="grid">
+            <div>
+                <label>Book ID</label>
+                <input id="bookId" placeholder="1">
+                <button class="secondary" onclick="req('GET','/api/books/'+val('bookId'))">GET /api/books/{id}</button>
+            </div>
+            <div>
+                <label>Title</label><input id="b_title" placeholder="Clean Architecture">
+                <label>Author</label><input id="b_author" placeholder="Robert C. Martin">
+                <label>ISBN</label><input id="b_isbn" placeholder="ISBN-999">
+                <button onclick="req('POST','/api/books', {title:val('b_title'),author:val('b_author'),isbn:val('b_isbn')})">POST /api/books</button>
+            </div>
+        </div>
+        <div style="margin-top:8px">
+            <label>Update Book (id)</label><input id="b_upd_id" placeholder="1">
+            <label>New Title</label><input id="b_upd_title" placeholder="New Title">
+            <label>New Author</label><input id="b_upd_author" placeholder="New Author">
+            <label>New ISBN</label><input id="b_upd_isbn" placeholder="ISBN-NEW">
+            <button onclick="req('PUT','/api/books/'+val('b_upd_id'), {title:val('b_upd_title'),author:val('b_upd_author'),isbn:val('b_upd_isbn')})">PUT /api/books/{id}</button>
+
+            <label style="margin-top:8px">Delete Book (id)</label><input id="b_del_id" placeholder="3">
+            <button class="secondary" onclick="req('DELETE','/api/books/'+val('b_del_id'))">DELETE /api/books/{id}</button>
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <legend>Users</legend>
+        <button class="secondary" onclick="req('GET','/api/users')">GET /api/users</button>
+        <label>Name</label><input id="u_name" placeholder="Masum Jia">
+        <label>Email</label><input id="u_email" placeholder="masum@example.com">
+        <button onclick="req('POST','/api/users', {name:val('u_name'), email:val('u_email')})">POST /api/users</button>
+    </fieldset>
+
+    <fieldset>
+        <legend>Borrow / Return</legend>
+        <label>Book ID</label><input id="br_book" placeholder="1">
+        <label>User ID</label><input id="br_user" placeholder="1">
+        <button onclick="req('POST','/api/borrow/'+val('br_book')+'/user/'+val('br_user'))">POST /api/borrow/{bookId}/user/{userId}</button>
+        <button class="secondary" onclick="req('POST','/api/return/'+val('br_book')+'/user/'+val('br_user'))">POST /api/return/{bookId}/user/{userId}</button>
+    </fieldset>
+
+    <h3 style="text-align:center">Response</h3>
+    <pre id="out">{ "status": "Waiting..." }</pre>
+</div>
+
+<script>
+    function val(id){ return document.getElementById(id).value.trim(); }
+    async function req(method, url, data){
+        const out = document.getElementById('out');
+        try{
+            const res = await fetch(url, {
+                method,
+                headers: data ? {'Content-Type':'application/json','Accept':'application/json'} : {'Accept':'application/json'},
+                body: data ? JSON.stringify(data) : undefined
+            });
+            const text = await res.text();
+            let body; try { body = JSON.parse(text); } catch { body = text; }
+            out.textContent = JSON.stringify({ status: res.status+' '+res.statusText, url, body }, null, 2);
+        }catch(err){
+            out.textContent = JSON.stringify({ error: String(err) }, null, 2);
+        }
+    }
+</script>
+</body>
+</html>
